@@ -1,0 +1,4 @@
+jira
+keyboard
+unidecode
+time
