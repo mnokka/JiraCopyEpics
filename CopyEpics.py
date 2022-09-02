@@ -69,7 +69,7 @@ def main(argv):
     
     EXAMPLE:
     
-    GetData.py  -u MYUSERNAME -w MYPASSWORD -s https://MYOWNJIRA.fi/ -i JIRAISSUE-ID"""
+    TODO  GetData.py  -u MYUSERNAME -w MYPASSWORD -s https://MYOWNJIRA.fi/ -i JIRAISSUE-ID"""
 
     
     )
@@ -94,7 +94,7 @@ def main(argv):
     JIRASERVICE = args.s or ''
     PSWD= args.w or ''
     USER= args.u or ''
-    ISSUE=args.i or ''
+    #ISSUE=args.i or ''
     if (args.r=="on"):
         SKIP=1
     else:
@@ -103,7 +103,7 @@ def main(argv):
     logging.info("PSWD:{0}".format(PSWD))
     
     # quick old-school way to check needed parameters
-    if (JIRASERVICE=='' or  PSWD=='' or USER==''  or ISSUE==''):
+    if (JIRASERVICE=='' or  PSWD=='' or USER==''):
         logging.error("\n---> MISSING ARGUMENTS!!\n ")
         parser.print_help()
         sys.exit(2)
@@ -112,6 +112,8 @@ def main(argv):
     Authenticate(JIRASERVICE,PSWD,USER)
     jira=DoJIRAStuff(USER,PSWD,JIRASERVICE)
     
+    print ("FORCE EXIT..!!")
+    sys.exit(5)
     Parse(JIRASERVICE,PSWD,USER,ENV,jira,SKIP,ISSUE)
 
 
