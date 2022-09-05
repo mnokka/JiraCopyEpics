@@ -101,9 +101,11 @@ def main(argv):
     SUMMARY="TEST SUMMARY"
     DESCRIPTION="TEST DESCRIPTION"
     PROJECT="GRA12"   #project ID
+    JIRAPROJECT="GRA12"
     
-    CreateEpic(jira,SUMMARY,DESCRIPTION,PROJECT)
+    #CreateEpic(jira,SUMMARY,DESCRIPTION,PROJECT)
 
+    GetSourceEpics(JIRAPROJECT,jira)
 
 ############################################################################################################################################
 # Create Epic issue. Using fixed task issuetype
@@ -151,46 +153,28 @@ def CreateEpic(jira,SUMMARY,DESCRIPTION,PROJECT):
     
 logging.debug ("--Python exiting--")
 
-
-
-
-
-
-
-############################################################################################################################################
-# Parse attachment files and add to matching Jira issue
+#################################################
+#Get source project Epics, hardcoded JQL
 #
 
-#NOTE: Uses hardcoded sheet/column value
+def GetSourceEpics(JIRAPROJECT,jira):
 
-def Parse(JIRASERVICE,PSWD,USER,ENV,jira,SKIP,ISSUE):
-
-
-    try:    
-       issue = jira.issue(ISSUE)
+    jql_query="Project = \'{0}\' and issuetype =\'Epic\' ".format(JIRAPROJECT) 
+    print ("Used query:{0}".format(jql_query))
+                        
+    issue_list=jira.search_issues(jql_query, maxResults=4000)
     
-       logging.debug ("Issue Data: {0}".format(issue.fields))
        
-       for field_name in issue.raw['fields']:
-               print ("Field:{0}  Value:{1}".format(field_name,issue.raw['fields'][field_name]))
-    
-    except JIRAError as e: 
-            logging.error(" ********** JIRA ERROR DETECTED: ***********")
-            logging.error(" ********** Statuscode:{0}    Statustext:{1} ************".format(e.status_code,e.text))
-            if (e.status_code==400):
-                logging.error("400 error dedected") 
+                     
+    nbr=len(issue_list)                    
+    if nbr >= 1:
+        COUNTER=1
+        print ("Found:{0} Epics".format(nbr))
+        for issue in issue_list:
+            print ("ISSUE:{0}-->{1}".format(COUNTER,issue))
+            COUNTER=COUNTER+1
     else:
-        logging.info("All OK")
-  
-        
-    end = time.perf_counter()
-    totaltime=end-start
-    print ("Time taken:{0} seconds".format(totaltime))
-       
-            
-    print ("*************************************************************************")
-    
-logging.debug ("--Python exiting--")
+        print ("NO Epics found")
 
 
 
