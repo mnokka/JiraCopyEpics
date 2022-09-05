@@ -35,6 +35,7 @@ def Authenticate(JIRASERVICE,PSWD,USER):
     
     
     f = requests.get(host,auth=(user, PASSWORD), verify=False)
+    #f = requests.get(host,auth=(user, PASSWORD))   
        
     status=f.status_code
     print ("STATUS CODE: %s" % status)
@@ -58,6 +59,7 @@ def DoJIRAStuff(user,PASSWORD,JIRASERVICE):
  try:
      print("Connecting to JIRA: %s" % jira_server)
      jira_options = {'server': jira_server,"verify" : False}
+     #jira_options = {'server': jira_server}
      jira = JIRA(options=jira_options,basic_auth=(user,PASSWORD))
      print ("JIRA Authorization OK")
  except Exception as e:

@@ -4,24 +4,7 @@
 
 
 
-
-
-# Used to get given Jira project issue data 
-#
-# 17.8.2020 mika.nokka1@gmail.com 
-# 
-# NOTES:
-# 1) For this POC removed .netrc authetication, using pure arguments
-#
-# Traps worng JQL query and possible corrupted attachment case (not downloading corrupted fileS) 
-# 
-#
-# Python V2
-#
 #from __future__ import unicode_literals
-
-#import openpyxl 
-#!/usr/bin/python3
 
 import sys, logging
 import argparse
@@ -44,9 +27,7 @@ import math
 start = time.perf_counter()
 __version__ = u"0.1"
 
-# should pass via  parameters
-#ENV="demo"
-ENV=u"PROD"
+
 
 logging.basicConfig(level=logging.DEBUG) # IF calling from Groovy, this must be set logging level DEBUG in Groovy side order these to be written out
 
@@ -112,9 +93,67 @@ def main(argv):
     Authenticate(JIRASERVICE,PSWD,USER)
     jira=DoJIRAStuff(USER,PSWD,JIRASERVICE)
     
-    print ("FORCE EXIT..!!")
-    sys.exit(5)
-    Parse(JIRASERVICE,PSWD,USER,ENV,jira,SKIP,ISSUE)
+    #print ("FORCE EXIT..!!")
+    #sys.exit(5)
+   
+   
+    print ("Creating test Epic")
+    SUMMARY="TEST SUMMARY"
+    DESCRIPTION="TEST DESCRIPTION"
+    PROJECT="GRA12"   #project ID
+    
+    CreateEpic(jira,SUMMARY,DESCRIPTION,PROJECT)
+
+
+############################################################################################################################################
+# Create Epic issue. Using fixed task issuetype
+#
+# https://zzzzz.atlassian.net/rest/api/2/field to fiend Epic name custom field ID
+# in used example Jira, it was customfield_10004
+# In server check Issues/Epic ID using UI
+#
+
+def CreateEpic(jira,SUMMARY,DESCRIPTION,PROJECT):
+
+    start = time.perf_counter()
+
+    try:    
+
+            newissue=jira.create_issue(fields={
+            'project': {'key': PROJECT},
+            'issuetype': {
+                "name": "Epic"
+            },
+            'summary': SUMMARY,
+            'description': DESCRIPTION,
+            'customfield_10005': SUMMARY   # only needed for Epic issuetype, "Epic Name", check your own Jira ID
+            })
+    
+    except JIRAError as e: 
+            logging.error(" ********** JIRA ERROR DETECTED: ***********")
+            #logging.error("Tried create issue:{0}".format(newissue))
+            
+            logging.error(" ********** Statuscode:{0}    Statustext:{1} ************".format(e.status_code,e.text))
+            if (e.status_code==400):
+                logging.error("400 error dedected") 
+    else:
+        logging.info("All OK")
+        logging.info("Issue created:{0}".format(newissue))
+  
+        
+    end = time.perf_counter()
+    totaltime=end-start
+    #seconds=totaltime.total_seconds()
+    print ("Operation time taken:{0} seconds".format(totaltime))
+       
+            
+    print ("*************************************************************************")
+    
+logging.debug ("--Python exiting--")
+
+
+
+
 
 
 
