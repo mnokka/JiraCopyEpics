@@ -171,7 +171,12 @@ def GetSourceEpics(JIRAPROJECT,jira):
         COUNTER=1
         print ("Found:{0} Epics".format(nbr))
         for issue in issue_list:
+            SUMMARY=issue.fields.summary
+            DESCRIPTION=issue.fields.description
             print ("ISSUE:{0}-->{1}".format(COUNTER,issue))
+            print("SUMMARY:{0}".format(SUMMARY))
+            print("DESCRIPTION:{0}".format(DESCRIPTION))
+            print ("---------------------------------------------------------")
             COUNTER=COUNTER+1
     else:
         print ("NO Epics found")
