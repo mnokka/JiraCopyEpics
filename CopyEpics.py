@@ -67,7 +67,7 @@ def main(argv):
     parser.add_argument('-u', help='<JIRA user account>',metavar="user")
     parser.add_argument('-s', help='<JIRA service>',metavar="server_address")
     parser.add_argument('-i', help='<JIRA IssueKey>',metavar="IssueKey")
-    parser.add_argument('-r', help='<DryRun - do nothing but emulate. Off by default>',metavar="on|off",default="off")
+    parser.add_argument('-r', help='<DryRun - do nothing but emulate. On by default>',metavar="on|off",default="on")
  
 
     args = parser.parse_args()
@@ -96,16 +96,21 @@ def main(argv):
     #print ("FORCE EXIT..!!")
     #sys.exit(5)
    
+    if (SKIP==1):
+        print("DRY RUN MODE ON")
+    else:
+        print ("REAL OPERATION MODE. DRY RUN MODE OFF") 
+   
    
     print ("Creating test Epic")
     SUMMARY="TEST SUMMARY"
     DESCRIPTION="TEST DESCRIPTION"
-    PROJECT="GRA12"   #project ID
-    JIRAPROJECT="GRA12"
+    TARGETPROJECT="GRA12"   #project ID
     
-    #CreateEpic(jira,SUMMARY,DESCRIPTION,PROJECT)
+    SOURCEJIRAPROJECT="GRAP"
+    #CreateEpic(jira,SUMMARY,DESCRIPTION,TARGETPROJECT)
 
-    GetSourceEpics(JIRAPROJECT,jira)
+    GetSourceEpics(SOURCEJIRAPROJECT,jira,SKIP)
 
 ############################################################################################################################################
 # Create Epic issue. Using fixed task issuetype
@@ -115,14 +120,14 @@ def main(argv):
 # In server check Issues/Epic ID using UI
 #
 
-def CreateEpic(jira,SUMMARY,DESCRIPTION,PROJECT):
+def CreateEpic(jira,SUMMARY,DESCRIPTION,TARGETPROJECT):
 
     start = time.perf_counter()
 
     try:    
 
             newissue=jira.create_issue(fields={
-            'project': {'key': PROJECT},
+            'project': {'key': TARGETPROJECT},
             'issuetype': {
                 "name": "Epic"
             },
@@ -157,9 +162,9 @@ logging.debug ("--Python exiting--")
 #Get source project Epics, hardcoded JQL
 #
 
-def GetSourceEpics(JIRAPROJECT,jira):
+def GetSourceEpics(SOURCEJIRAPROJECT,jira,SKIP):
 
-    jql_query="Project = \'{0}\' and issuetype =\'Epic\' ".format(JIRAPROJECT) 
+    jql_query="Project = \'{0}\' and issuetype =\'Epic\' ".format(SOURCEJIRAPROJECT) 
     print ("Used query:{0}".format(jql_query))
                         
     issue_list=jira.search_issues(jql_query, maxResults=4000)
@@ -178,26 +183,16 @@ def GetSourceEpics(JIRAPROJECT,jira):
             print("DESCRIPTION:{0}".format(DESCRIPTION))
             print ("---------------------------------------------------------")
             COUNTER=COUNTER+1
+            if (SKIP==1):
+                print("DRY RUN MODE ON")
+            else:
+                print ("REAL OPERATION MODE. DRY RUN MODE OFF")    
+            time.sleep(0.5) # prevent jira crash when creating issues in a row
     else:
         print ("NO Epics found")
 
 
-
-#############################################
-# Generate timestamp 
-#
-def GetStamp():
-    from datetime import datetime,date
-    
-    hours=str(datetime.today().hour)
-    minutes=str(datetime.today().minute)
-    seconds=str(datetime.today().second)
-    milliseconds=str(datetime.today().microsecond)
-
-    stamp=hours+"_"+minutes+"_"+seconds+"_"+milliseconds
-
-    return stamp
-
+#########################################################################
 
 if __name__ == "__main__":
     main(sys.argv[1:]) 
