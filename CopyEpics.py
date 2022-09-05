@@ -24,7 +24,7 @@ from time import sleep
 import keyboard
 import math
 
-start = time.perf_counter()
+
 __version__ = u"0.1"
 
 
@@ -40,8 +40,12 @@ def main(argv):
     PSWD=u''
     USER=u''
   
+    #hardcoded Jira source (of the epics) and target project (place where epics are copied) IDs
+    TARGETPROJECT="GRA12"  
+    SOURCEJIRAPROJECT="GRAP"
+  
     logging.debug (u"--Created date field copier starting --") 
-
+    start = time.perf_counter()
  
     parser = argparse.ArgumentParser(description=" Copy Jira JQL result issues attachments to given directory",
     
@@ -50,23 +54,17 @@ def main(argv):
     
     EXAMPLE:
     
-    TODO  GetData.py  -u MYUSERNAME -w MYPASSWORD -s https://MYOWNJIRA.fi/ -i JIRAISSUE-ID"""
+    CopyEpics.py  -u MYUSERNAME -w MYPASSWORD -s https://MYOWNJIRA.fi/ """
 
     
     )
     
-   
-
-    #parser = argparse.ArgumentParser(description="Copy Jira JQL result issues' attachments to given directory")
-    
-    #parser = argparse.ArgumentParser(epilog=" not displayed ") # TODO: not working
     
     parser.add_argument('-v', help='Show version&author and exit', action='version',version="Version:{0}   mika.nokka1@gmail.com ,  MIT licenced ".format(__version__) )
     
     parser.add_argument("-w",help='<JIRA password>',metavar="password")
     parser.add_argument('-u', help='<JIRA user account>',metavar="user")
     parser.add_argument('-s', help='<JIRA service>',metavar="server_address")
-    parser.add_argument('-i', help='<JIRA IssueKey>',metavar="IssueKey")
     parser.add_argument('-r', help='<DryRun - do nothing but emulate. On by default>',metavar="on|off",default="on")
  
 
@@ -75,13 +73,12 @@ def main(argv):
     JIRASERVICE = args.s or ''
     PSWD= args.w or ''
     USER= args.u or ''
-    #ISSUE=args.i or ''
+
     if (args.r=="on"):
         SKIP=1
     else:
         SKIP=0    
 
-    logging.info("PSWD:{0}".format(PSWD))
     
     # quick old-school way to check needed parameters
     if (JIRASERVICE=='' or  PSWD=='' or USER==''):
@@ -102,15 +99,18 @@ def main(argv):
         print ("REAL OPERATION MODE. DRY RUN MODE OFF") 
    
    
-    print ("Creating test Epic")
-    SUMMARY="TEST SUMMARY"
-    DESCRIPTION="TEST DESCRIPTION"
-    TARGETPROJECT="GRA12"   #project ID
-    
-    SOURCEJIRAPROJECT="GRAP"
+    #print ("Creating test Epic")
+    #SUMMARY="TEST SUMMARY"
+    #DESCRIPTION="TEST DESCRIPTION"
     #CreateEpic(jira,SUMMARY,DESCRIPTION,TARGETPROJECT)
 
-    GetSourceEpics(SOURCEJIRAPROJECT,jira,SKIP)
+    GetSourceEpics(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT)
+
+
+    end = time.perf_counter()
+    totaltime=end-start
+    #seconds=totaltime.total_seconds()
+    print ("Operation time taken:{0} seconds".format(totaltime))
 
 ############################################################################################################################################
 # Create Epic issue. Using fixed task issuetype
@@ -150,7 +150,6 @@ def CreateEpic(jira,SUMMARY,DESCRIPTION,TARGETPROJECT):
         
     end = time.perf_counter()
     totaltime=end-start
-    #seconds=totaltime.total_seconds()
     print ("Operation time taken:{0} seconds".format(totaltime))
        
             
@@ -162,7 +161,7 @@ logging.debug ("--Python exiting--")
 #Get source project Epics, hardcoded JQL
 #
 
-def GetSourceEpics(SOURCEJIRAPROJECT,jira,SKIP):
+def GetSourceEpics(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
 
     jql_query="Project = \'{0}\' and issuetype =\'Epic\' ".format(SOURCEJIRAPROJECT) 
     print ("Used query:{0}".format(jql_query))
@@ -181,13 +180,17 @@ def GetSourceEpics(SOURCEJIRAPROJECT,jira,SKIP):
             print ("ISSUE:{0}-->{1}".format(COUNTER,issue))
             print("SUMMARY:{0}".format(SUMMARY))
             print("DESCRIPTION:{0}".format(DESCRIPTION))
-            print ("---------------------------------------------------------")
+
             COUNTER=COUNTER+1
             if (SKIP==1):
-                print("DRY RUN MODE ON")
+                print("DRY RUN MODE ON. Not creating the Epic")
             else:
-                print ("REAL OPERATION MODE. DRY RUN MODE OFF")    
+                print ("REAL OPERATION MODE. DRY RUN MODE OFF. Creating the Epic")    
+                CreateEpic(jira,SUMMARY,DESCRIPTION,TARGETPROJECT)
+            
             time.sleep(0.5) # prevent jira crash when creating issues in a row
+            print ("---------------------------------------------------------")
+            
     else:
         print ("NO Epics found")
 
