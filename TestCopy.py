@@ -173,8 +173,11 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
     nbr=len(issue_list)                    
     if nbr >= 1:
         COUNTER=1
-        print ("Found:{0} Tests".format(nbr))
+        print ("Found:{0} Tests".format(nbr)) # iterate over all found Test issues
         for issue in issue_list:
+            print ("..............................................................................................................")
+            TARGETEPIC="NA"
+            TARGETTEST="NA"
             SUMMARY=issue.fields.summary
             DESCRIPTION=issue.fields.description
             EPICLINK=issue.raw["fields"]["customfield_10006"]  # find ocrrect epic link id from ui
@@ -182,13 +185,8 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             print("SUMMARY:{0}".format(SUMMARY))
             print("DESCRIPTION:{0}".format(DESCRIPTION))
 
-
-
-            #STEPS=issue.raw["fields"]["customfield_10100"]
-            #print("STEPS:{0}".format(STEPS))
-
             print("EPICLINK:{0}".format(EPICLINK))
-            if (EPICLINK != None):
+            if (EPICLINK != None): # Test case has linked EPIC
                 
                 print ("********************************************************************")
                 linkedissue = jira.issue(EPICLINK)
@@ -196,6 +194,50 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                 print("LINKEDSUMMARY:{0}".format(LINKEDSUMMARY))
                 print ("Test case: {0}--> Epic:{1}".format(issue,linkedissue))
                 print ("{0} --> {1}".format(SUMMARY,LINKEDSUMMARY))
+
+
+                #Find Epic from target project, using summary as key
+                
+                
+                EDITEDLINKEDSUMMARY=LINKEDSUMMARY.replace('[','')
+                EDITEDLINKEDSUMMARY=EDITEDLINKEDSUMMARY.replace(']','')
+                EDITEDLINKEDSUMMARY=EDITEDLINKEDSUMMARY.replace('\'','\\\'')
+                jql_query="Project = \'{0}\' and summary ~ \'{1}\' and issuetype = Epic ".format(TARGETPROJECT,EDITEDLINKEDSUMMARY) 
+                print ("Used query:{0}".format(jql_query))                        
+                issue_list=jira.search_issues(jql_query, maxResults=4000)
+              
+                            
+                z=len(issue_list)                    
+                if z >= 1:
+                    print ("Found:{0} Epic".format(z))
+                    for issue in issue_list: # assume only one Epic has been linked 
+                        TARGETEPIC=issue
+                        print ("TARGET EPIC:{0}".format(TARGETEPIC))
+                else:
+                    print ("ERRIR: NO TARGET EPIC FOUND")        
+                
+                
+                #Find Test case from target project, using summary as key
+                EDITEDSUMMARY=SUMMARY.replace('[','')
+                EDITEDSUMMARY=EDITEDSUMMARY.replace(']','')
+                EDITEDSUMMARY=EDITEDSUMMARY.replace('\'','\\\'')
+                jql_query="Project = \'{0}\' and summary ~ \'{1}\' and issuetype = Test ".format(TARGETPROJECT,EDITEDSUMMARY) 
+                print ("Used query:{0}".format(jql_query))                        
+                issue_list=jira.search_issues(jql_query, maxResults=4000)
+              
+                            
+                z=len(issue_list)                    
+                if z >= 1:
+                    print ("Found:{0} Test".format(z))
+                    for issue in issue_list: # assume only one Test 
+                        TARGETTEST=issue
+                        print ("TARGET TEST:{0}".format(TARGETTEST))
+                else:
+                    print ("ERRIR: NO TARGET TEST FOUND")        
+                
+                
+                
+                
                 print ("********************************************************************")
 
             COUNTER=COUNTER+1
