@@ -30,4 +30,12 @@ options:
   
   
 Note: source and target projects hardcoded  
-EXAMPLE: CopyEpics.py -u MYUSERNAME -w MYPASSWORD -s https://MYOWNJIRA.fi/
+EXAMPLE: CopyEpics.py -u MYUSERNAME -w MYPASSWORD -s https://MYOWNJIRA.fi/  
+<br />
+<br />
+<br />
+<br />
+Browse source project and find Epic-Test case linkage pairs. Remove possible copies of of matched test case (fixing Zephyr Squad importer errors)
+
+Note:source and target projects hardcoded   
+EXAMPLE: FindCreateEpicTestLinks.py -u MYUSERNAME -w MYPASSWORD -s https://MYOWNJIRA.fi/ 

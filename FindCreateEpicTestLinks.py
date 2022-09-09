@@ -202,6 +202,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                 EDITEDLINKEDSUMMARY=LINKEDSUMMARY.replace('[','')
                 EDITEDLINKEDSUMMARY=EDITEDLINKEDSUMMARY.replace(']','')
                 EDITEDLINKEDSUMMARY=EDITEDLINKEDSUMMARY.replace('\'','\\\'')
+                EDITEDSUMMARY=EDITEDLINKEDSUMMARY.replace('\'','\\\'')
                 jql_query="Project = \'{0}\' and summary ~ \'{1}\' and issuetype = Epic ".format(TARGETPROJECT,EDITEDLINKEDSUMMARY) 
                 print ("Used query:{0}".format(jql_query))                        
                 issue_list=jira.search_issues(jql_query, maxResults=4000)
@@ -214,7 +215,9 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                         TARGETEPIC=issue
                         print ("TARGET EPIC:{0}".format(TARGETEPIC))
                 else:
-                    print ("ERRIR: NO TARGET PROJECT EPIC FOUND")        
+                    print ("ERROR: NO TARGET PROJECT EPIC FOUND. IT MIGHT BE IN ANOTHER PROJECT!!!!!!!!!!!!!!!!!!!!!!!!")
+                    print ("STOPPING ANALYZING THIS CASE. YOU MIGHT WANT CHECK THIS LINKAGE MANUALLY") 
+                    continue   
                 
                 
                 #Find Test case from target project, using summary as key
@@ -226,16 +229,33 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                 issue_list=jira.search_issues(jql_query, maxResults=4000)
               
                 
-                #create target project to be credted pic->test link information  
+                #create target project to be created pic->test link information  
                 # collect information to be deleted duplicates          
                 z=len(issue_list)                    
-                if z >= 1:
-                    print ("Found:{0} matching TARGET project test case(s)".format(z))
+                if (z > 1):
+                    duplicates=[]
+                    print ("DUPLICATE ERROR Found several:{0} matching same TARGET project test cases".format(z))
+                    COUNTER2=0
                     for issue in issue_list: # assume only one Test 
-                        TARGETTEST=issue
-                        print ("TARGET EPIC:{0} -> LINKED TEST:{1}".format(TARGETEPIC,TARGETTEST))
+                        COUNTER2=COUNTER2+1
+                        if (COUNTER2<=1): # use first as test case, delete rest of the duplicates
+                            TARGETTEST=issue
+                            print ("TARGET EPIC:{0} -> LINKED TEST:{1}".format(TARGETEPIC,TARGETTEST))
+                            print ("TODO Duplicates to be removed:")
+                        else:
+                            duplicates.append(issue)
+                    if (COUNTER2>1):
+                        print ("Duplicate test issues to be deleted: {0}".format(duplicates))
+                    else:
+                        print ("ERROR: This line should not be executed")    
+                            
+                elif (z==1):
+                    print("OK: Found single:{0} matching TARGET project test case".format(z))
+                    TARGETTEST=issue
+                    print ("TARGET EPIC:{0} -> LINKED TEST:{1}".format(TARGETEPIC,TARGETTEST))
+                             
                 else:
-                    print ("ERRIR: NO TARGET TEST FOUND")          
+                    print ("ERROR: NO TARGET TEST CASE FOUND")          
                 print ("****************************************************************************************************************")
 
             COUNTER=COUNTER+1
