@@ -1,6 +1,6 @@
 # Go through source project Zephyr Squad test cases and find Epic(s) linked to them
-# Then find this test->epic pair from target project using summaries as JQL query and 
-# create link between them (test cases and epics are just copied to new project, missing the linkage) 
+# Then find this test->epic pairs from target project using summaries as JQL query and 
+# create link between them (test cases and epics have been copied to new project, missing the linkage) 
 # 
 # mika.nokka1@gmail.com 1.9.2021
 
@@ -181,18 +181,18 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             SUMMARY=issue.fields.summary
             DESCRIPTION=issue.fields.description
             EPICLINK=issue.raw["fields"]["customfield_10006"]  # find ocrrect epic link id from ui
-            print ("ISSUE:{0}-->{1}".format(COUNTER,issue))
+            print ("SOURCE PROJECT ISSUE:{0}-->{1}".format(COUNTER,issue))
             print("SUMMARY:{0}".format(SUMMARY))
             print("DESCRIPTION:{0}".format(DESCRIPTION))
-
-            print("EPICLINK:{0}".format(EPICLINK))
+            print("SOURCE PROJECT EPICLINK:{0}".format(EPICLINK))
+            
             if (EPICLINK != None): # Test case has linked EPIC
                 
-                print ("********************************************************************")
+                print ("********************************************************************************************************")
                 linkedissue = jira.issue(EPICLINK)
                 LINKEDSUMMARY=linkedissue.fields.summary
-                print("LINKEDSUMMARY:{0}".format(LINKEDSUMMARY))
-                print ("Test case: {0}--> Epic:{1}".format(issue,linkedissue))
+                print("LINKED SOURCE EPIC SUMMARY:{0}".format(LINKEDSUMMARY))
+                print ("Linked Source Test case: {0}-->  Source Epic:{1}".format(issue,linkedissue))
                 print ("{0} --> {1}".format(SUMMARY,LINKEDSUMMARY))
 
 
@@ -209,12 +209,12 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                             
                 z=len(issue_list)                    
                 if z >= 1:
-                    print ("Found:{0} Epic".format(z))
+                    print ("Found name matching TARGET project Epic:{0}".format(z))
                     for issue in issue_list: # assume only one Epic has been linked 
                         TARGETEPIC=issue
                         print ("TARGET EPIC:{0}".format(TARGETEPIC))
                 else:
-                    print ("ERRIR: NO TARGET EPIC FOUND")        
+                    print ("ERRIR: NO TARGET PROJECT EPIC FOUND")        
                 
                 
                 #Find Test case from target project, using summary as key
@@ -225,20 +225,18 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                 print ("Used query:{0}".format(jql_query))                        
                 issue_list=jira.search_issues(jql_query, maxResults=4000)
               
-                            
+                
+                #create target project to be credted pic->test link information  
+                # collect information to be deleted duplicates          
                 z=len(issue_list)                    
                 if z >= 1:
-                    print ("Found:{0} Test".format(z))
+                    print ("Found:{0} matching TARGET project test case(s)".format(z))
                     for issue in issue_list: # assume only one Test 
                         TARGETTEST=issue
-                        print ("TARGET TEST:{0}".format(TARGETTEST))
+                        print ("TARGET EPIC:{0} -> LINKED TEST:{1}".format(TARGETEPIC,TARGETTEST))
                 else:
-                    print ("ERRIR: NO TARGET TEST FOUND")        
-                
-                
-                
-                
-                print ("********************************************************************")
+                    print ("ERRIR: NO TARGET TEST FOUND")          
+                print ("****************************************************************************************************************")
 
             COUNTER=COUNTER+1
             if (SKIP==1):
@@ -248,7 +246,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                 #CreateEpic(jira,SUMMARY,DESCRIPTION,TARGETPROJECT)
             
             #time.sleep(0.5) # prevent jira crash when creating issues in a row
-            print ("---------------------------------------------------------")
+            print ("..............................................................................................................")
             
     else:
         print ("NO Epics found")
