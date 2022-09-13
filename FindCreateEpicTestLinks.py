@@ -175,7 +175,9 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
         COUNTER=1
         print ("Found:{0} Tests".format(nbr)) # iterate over all found Test issues
         for issue in issue_list:
-            print ("..............................................................................................................")
+            print ("")
+            print ("")
+            print ("xxxxxxxxxxxxxxxxxxxxx {0} xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".format(issue))
             TARGETEPIC="NA"
             TARGETTEST="NA"
             SUMMARY=issue.fields.summary
@@ -186,9 +188,28 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             print("DESCRIPTION:{0}".format(DESCRIPTION))
             print("SOURCE PROJECT EPICLINK:{0}".format(EPICLINK))
             
+
+
+ 
+            
+            
+        
             if (EPICLINK != None): # Test case has linked EPIC
                 
-                print ("********************************************************************************************************")
+                print ("****************** EPIC LINKS SECTION ********************************************************************")
+                
+                
+                # fail this issue handling if source project test case linked EPIC is outside source project (in another project)
+                REGEXPR=r"("+SOURCEJIRAPROJECT+r")(-)(.*)"
+                x = re.search(str(REGEXPR), str(EPICLINK))       
+                if (x and x.group(1)==SOURCEJIRAPROJECT):
+                    print ("OK. source project Epic is inside source project:{0}".format(x.group(1)))                            
+                else:
+                    print ("ERROR: SOURCE PROJECT LINKED EPIC IS OUTSIDE OF SOURCE PROJECT!!!!!!!")
+                    print ("STOPPING ANALYZING THIS TEST CASE. YOU MIGHT WANT CHECK THIS LINKAGE MANUALLY") 
+                    continue
+                
+                
                 linkedissue = jira.issue(EPICLINK)
                 LINKEDSUMMARY=linkedissue.fields.summary
                 print("LINKED SOURCE EPIC SUMMARY:{0}".format(LINKEDSUMMARY))
@@ -196,9 +217,8 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                 print ("{0} --> {1}".format(SUMMARY,LINKEDSUMMARY))
 
 
-                #Find Epic from target project, using summary as key
-                
-                
+                #Find Epic from target project, using source Epic summary as key for JQL
+                #get rid of some JQL command chars first
                 EDITEDLINKEDSUMMARY=LINKEDSUMMARY.replace('[','')
                 EDITEDLINKEDSUMMARY=EDITEDLINKEDSUMMARY.replace(']','')
                 EDITEDLINKEDSUMMARY=EDITEDLINKEDSUMMARY.replace('\'','\\\'')
@@ -214,8 +234,11 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                     for issue in issue_list: # assume only one Epic has been linked 
                         TARGETEPIC=issue
                         print ("TARGET EPIC:{0}".format(TARGETEPIC))
+                elif (z>1): # in case many epics, fails this issue handling
+                    print ("ERROR: TOO MANY LINKED EPICS FOUND.MAYBE EPIC SUMMARY MATCHES TOO MANY EPICS. CHECK MANUALLY!!")
+                    continue            
                 else:
-                    print ("ERROR: NO TARGET PROJECT EPIC FOUND. IT MIGHT BE IN ANOTHER PROJECT!!!!!!!!!!!!!!!!!!!!!!!!")
+                    print ("ERROR: NO TARGET PROJECT EPIC FOUND. IT MIGHT BE OUTSIDE IN ANOTHER PROJECT!!!!!!!!!")
                     print ("STOPPING ANALYZING THIS CASE. YOU MIGHT WANT CHECK THIS LINKAGE MANUALLY") 
                     continue   
                 
@@ -246,12 +269,14 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                             duplicates.append(issue)
                     if (COUNTER2>1):
                         print ("Duplicate test issues to be deleted: {0}".format(duplicates))
+                        for issue in duplicates:
+                            print ("TBD Deleted issue: {0}".format(issue))
                     else:
                         print ("ERROR: This line should not be executed")    
                             
                 elif (z==1):
                     print("OK: Found single:{0} matching TARGET project test case".format(z))
-                    TARGETTEST=issue
+                    TARGETTEST=issue_list[0]
                     print ("TARGET EPIC:{0} -> LINKED TEST:{1}".format(TARGETEPIC,TARGETTEST))
                              
                 else:
@@ -260,13 +285,14 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
 
             COUNTER=COUNTER+1
             if (SKIP==1):
-                print("DRY RUN MODE ON. Not doing anythin")
+                print("DRY RUN MODE ON. Not doing anything")
             else:
                 print ("REAL OPERATION MODE. DRY RUN MODE OFF. Doing the deed")    
                 #CreateEpic(jira,SUMMARY,DESCRIPTION,TARGETPROJECT)
             
             #time.sleep(0.5) # prevent jira crash when creating issues in a row
-            print ("..............................................................................................................")
+            print ("xxxxxxxxxx END OF ISSUE HANDLING xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+            print ("")
             
     else:
         print ("NO Epics found")
