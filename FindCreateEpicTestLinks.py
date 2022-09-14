@@ -163,10 +163,27 @@ logging.debug ("--Python exiting--")
 
 def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
 
-    jql_query="Project = \'{0}\' and issuetype =\'Test\' ".format(SOURCEJIRAPROJECT) 
+    #jql_query="Project = \'{0}\' and issuetype =\'Test\' ".format(SOURCEJIRAPROJECT) # by default only 1000 results given
+    
+    # some splitting queries by create date
+    #1
+    #jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2019-01-01\" and createdDate <\"2020-5-21 15:08\"".format(SOURCEJIRAPROJECT)
+    #2
+    #jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2020-5-21 15:08\" and createdDate <\"2020-5-21 20:09\"".format(SOURCEJIRAPROJECT)
+    #3
+    #jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2020-5-21 20:09\" and createdDate <\"2020-5-21 20:21\"".format(SOURCEJIRAPROJECT)
+    #4
+    #jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2020-5-21 20:21\" and createdDate <\"2020-5-21 20:40\"".format(SOURCEJIRAPROJECT)
+    #5
+    #jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2020-5-21 20:40\" and createdDate <\"2020-7-30 20:40\"".format(SOURCEJIRAPROJECT)
+    #6
+    #jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2020-7-30 20:40\" and createdDate <\"2021-3-30 20:40\"".format(SOURCEJIRAPROJECT)
+    #7
+    jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2021-3-30 20:40\"".format(SOURCEJIRAPROJECT)
+    
     print ("Used query:{0}".format(jql_query))
                         
-    issue_list=jira.search_issues(jql_query, maxResults=4000)
+    issue_list=jira.search_issues(jql_query, maxResults=6000)
     
        
                      
@@ -180,8 +197,10 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             print ("xxxxxxxxxxxxxxxxxxxxx {0} xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".format(issue))
             TARGETEPIC="NA"
             TARGETTEST="NA"
-            SUMMARY=issue.fields.summary
+            SUMMARY=issue.fields.summary.encode("utf-8")
             DESCRIPTION=issue.fields.description
+            if (DESCRIPTION!=None):
+                 DESCRIPTION=issue.fields.description.encode("utf-8")
             EPICLINK=issue.raw["fields"]["customfield_10006"]  # find ocrrect epic link id from ui
             print ("SOURCE PROJECT ISSUE:{0}-->{1}".format(COUNTER,issue))
             print("SUMMARY:{0}".format(SUMMARY))
@@ -244,6 +263,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                 
                 
                 #Find Test case from target project, using summary as key
+                SUMMARY=SUMMARY.decode()
                 EDITEDSUMMARY=SUMMARY.replace('[','')
                 EDITEDSUMMARY=EDITEDSUMMARY.replace(']','')
                 EDITEDSUMMARY=EDITEDSUMMARY.replace('\'','\\\'')
@@ -271,6 +291,13 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                         print ("Duplicate test issues to be deleted: {0}".format(duplicates))
                         for issue in duplicates:
                             print ("TBD Deleted issue: {0}".format(issue))
+                            if (SKIP==1):
+                                print("DRY RUN MODE ON. Not doing anything")
+                            else:
+                                print ("REAL OPERATING MODE. DELETING ISSUE:{0}".format(issue))
+                                issue.delete()
+                            
+                            
                     else:
                         print ("ERROR: This line should not be executed")    
                             
@@ -287,10 +314,10 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             if (SKIP==1):
                 print("DRY RUN MODE ON. Not doing anything")
             else:
-                print ("REAL OPERATION MODE. DRY RUN MODE OFF. Doing the deed")    
+                print ("REAL OPERATION MODE. DRY RUN MODE OFF. Doing the deed. NOTHING AT TME MOMENT")    
                 #CreateEpic(jira,SUMMARY,DESCRIPTION,TARGETPROJECT)
             
-            #time.sleep(0.5) # prevent jira crash when creating issues in a row
+                #time.sleep(0.5) # prevent jira crash when creating issues in a row
             print ("xxxxxxxxxx END OF ISSUE HANDLING xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
             print ("")
             
