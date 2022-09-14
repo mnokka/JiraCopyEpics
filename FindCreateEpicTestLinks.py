@@ -163,7 +163,7 @@ logging.debug ("--Python exiting--")
 
 def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
 
-    #jql_query="Project = \'{0}\' and issuetype =\'Test\' ".format(SOURCEJIRAPROJECT) # by default only 1000 results given
+    jql_query="Project = \'{0}\' and issuetype =\'Test\' ".format(SOURCEJIRAPROJECT) # by default only 1000 results given
     
     # some splitting queries by create date
     #1
@@ -179,7 +179,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
     #6
     #jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2020-7-30 20:40\" and createdDate <\"2021-3-30 20:40\"".format(SOURCEJIRAPROJECT)
     #7
-    jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2021-3-30 20:40\"".format(SOURCEJIRAPROJECT)
+    #jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2021-3-30 20:40\"".format(SOURCEJIRAPROJECT)
     
     print ("Used query:{0}".format(jql_query))
                         
@@ -295,7 +295,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                                 print("DRY RUN MODE ON. Not doing anything")
                             else:
                                 print ("REAL OPERATING MODE. DELETING ISSUE:{0}".format(issue))
-                                issue.delete()
+                                #issue.delete()
                             
                             
                     else:
@@ -305,7 +305,18 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                     print("OK: Found single:{0} matching TARGET project test case".format(z))
                     TARGETTEST=issue_list[0]
                     print ("TARGET EPIC:{0} -> LINKED TEST:{1}".format(TARGETEPIC,TARGETTEST))
-                             
+                    EPICLINK=TARGETTEST.raw["fields"]["customfield_10006"]  # find ocrrect epic link id from ui
+                    print ("Target Issue Epic Link:{0}".format(EPICLINK))
+                    
+                    
+                    if (SKIP==1):
+                                print("DRY RUN MODE ON. Not doing Epic-Test linking")
+                    else:
+                        print ("REAL OPERATING MODE. Creating Target Epic-Target Test link:{0}".format(issue))               
+                        TARGETTEST.update(fields={'customfield_10006': str(TARGETEPIC)})
+                        #print("FORCE EXIT. CHECK RESULTS")
+                    
+                               
                 else:
                     print ("ERROR: NO TARGET TEST CASE FOUND")          
                 print ("****************************************************************************************************************")
