@@ -156,11 +156,32 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             DESCRIPTION=issue.fields.description
             if (DESCRIPTION!=None):
                 DESCRIPTION=issue.fields.description.encode("utf-8")
+            COMPONENT=issue.fields.components
+            REPORTER=issue.fields.reporter
+            PRIORITY=issue.fields.priority 
+            LABELS=issue.fields.labels 
+            AUTOMATION=issue.get_field("customfield_11801")
+            #TEAM=issue.get_field("customfield_13402") 
+            TEAM2=issue.get_field("customfield_12500") 
+            REPORTEDBY=issue.get_field("customfield_12200") 
+            REPORTEDBYSI=issue.get_field("customfield_20205")
          
             print ("SOURCE PROJECT ISSUE:{0}-->{1}".format(COUNTER,issue))
             print("SUMMARY:{0}".format(SUMMARY))
             print("DESCRIPTION:{0}".format(DESCRIPTION))
-
+            print ("COMPONENTS:{0}".format(COMPONENT))
+            print ("REPORTER:{0}".format(REPORTER))
+            print ("PRIORITY:{0}".format(PRIORITY))
+            print ("AUTOMATION:{0}".format(AUTOMATION))
+            #print ("TEAM:{0}".format(TEAM))
+            print ("TEAM2:{0}".format(TEAM2))
+            print ("REPORTEDBY:{0}".format(REPORTEDBY))
+            print ("REPORTEDBYSI:{0}".format(REPORTEDBYSI))
+            
+            C=0
+            for label in LABELS:
+                C=C+1
+                print ("LABEL {0} : {1}".format(C,label))
          
 
             #Find Test case from target project, using summary as key
