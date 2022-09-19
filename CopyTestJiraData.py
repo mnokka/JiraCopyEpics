@@ -142,13 +142,15 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
     
        
                      
-    nbr=len(issue_list)                    
+    nbr=len(issue_list)     
+              
     if nbr >= 1:
         COUNTER=1
         print ("Found:{0} Tests".format(nbr)) # iterate over all found Test issues
         for issue in issue_list:
             print ("")
             print ("")
+            
             print ("xxxxxxxxxxxxxxxxxxxxx {0} xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".format(issue))
 
             TARGETTEST="NA"
@@ -231,17 +233,80 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             print ("****************************************************************************************************************")
 
             COUNTER=COUNTER+1
-            if (SKIP==1):
-                print("DRY RUN MODE ON. Not doing anything")
-            else:
-                print ("REAL OPERATION MODE. DRY RUN MODE OFF. Doing the deed. NOTHING AT TME MOMENT")    
             
-                #time.sleep(0.5) # prevent jira crash when creating issues in a row
+                
+            
+            if (TARGETTEST != "NA"):
+                
+                if (SKIP==1):
+                    print("DRY RUN MODE ON. NOT DOING ANYTHING")
+                   
+                else:
+                    print ("REAL OPERATION MODE. DRY RUN MODE OFF. Doing the data copy operation") 
+                    CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,REPORTEDBYSI,SAUTOMATION,CLIENTU,CLIENTREQ,TARGETTEST)   
+                    #time.sleep(0.5) # prevent jira crash when creating issues in a row
+                
+               
+                if (COUNTER>=1):
+                    print ("FORCE TESTING  STOP!!!")
+                    sys.exit(5)    
+                
+                
+                
             print ("xxxxxxxxxx END OF ISSUE HANDLING xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
             print ("")
             
+            
+
+            
     else:
         print ("No test case found")
+ 
+############################################################################################
+# copy source project test case normal Jira data to target project found matching test case    
+# TBD: data in dictionary     
+        
+def CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,REPORTEDBYSI,SAUTOMATION,CLIENTU,CLIENTREQ,TARGETTEST):        
+        print ("Data copy operations TO:{0}".format(TARGETTEST))
+        print ("..............................................")
+        
+        if (DESCRIPTION != None):
+            print ("DESCRIPTION available")
+        
+        if (COMPONENT != None):
+            NAME=COMPONENT[0]
+            print ("COMPONENT available -->{0}".format(NAME))
+
+        
+        if (REPORTER != None):
+            print ("REPORTER available")        
+            
+        if (PRIORITY != None):
+            print ("PRIORITY available")
+        
+        if (LABELS != None):
+            print ("LABELS available")
+            for label in LABELS:
+                print ("  -->{0}".format(label))
+        
+        if (AUTOMATION != None):
+            print ("AUTOMATION available")
+        
+        if (TEAM2 != None):
+            print ("TEAM2 available")
+        
+        if (REPORTEDBYSI != None):
+            print ("REPORTEDBYSI available")
+
+        if (SAUTOMATION != None):
+            print ("SAUTOMATION available")
+            
+        if (CLIENTU != None):
+            print ("CLIENTU available")
+            
+        if (CLIENTREQ != None):
+            print ("CLIENTREQ available")
+
 
 
 #########################################################################
