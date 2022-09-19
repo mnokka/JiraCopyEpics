@@ -163,8 +163,10 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             AUTOMATION=issue.get_field("customfield_11801")
             #TEAM=issue.get_field("customfield_13402") 
             TEAM2=issue.get_field("customfield_12500") 
-            REPORTEDBY=issue.get_field("customfield_12200") 
-            REPORTEDBYSI=issue.get_field("customfield_20205")
+            REPORTEDBYSI=issue.get_field("customfield_12200") 
+            SAUTOMATION=issue.get_field("customfield_20205")
+            CLIENTU=issue.get_field("customfield_11802")
+            CLIENTREQ=issue.get_field("customfield_11472")
          
             print ("SOURCE PROJECT ISSUE:{0}-->{1}".format(COUNTER,issue))
             print("SUMMARY:{0}".format(SUMMARY))
@@ -175,8 +177,10 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             print ("AUTOMATION:{0}".format(AUTOMATION))
             #print ("TEAM:{0}".format(TEAM))
             print ("TEAM2:{0}".format(TEAM2))
-            print ("REPORTEDBY:{0}".format(REPORTEDBY))
             print ("REPORTEDBYSI:{0}".format(REPORTEDBYSI))
+            print ("SAUTOMATION:{0}".format(SAUTOMATION))
+            print ("CLIENTU:{0}".format(CLIENTU))
+            print ("CLIENTREQ:{0}".format(CLIENTREQ))
             
             C=0
             for label in LABELS:
