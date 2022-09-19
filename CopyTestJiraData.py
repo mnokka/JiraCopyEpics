@@ -248,7 +248,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                     #time.sleep(0.3) # prevent jira crash when creating issues in a row
                 
                
-                if (COPIEDCOUNTER>=5):
+                if (COPIEDCOUNTER>=20):
                     print ("FORCE TESTING  STOP!!!")
                     sys.exit(5)    
                 
@@ -277,7 +277,7 @@ def CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,RE
             TARGETTEST.update(notify=False, description=str(DESCRIPTION))
             time.sleep(0.3) 
         
-        if (COMPONENT != None):
+        if ((COMPONENT != None) and (len(COMPONENT) >1)):
             NAME=COMPONENT[0]
             print ("COMPONENT available -->{0}".format(NAME))
             TARGETTEST.update(notify=False,update={"components": [{"add": {"name": str(NAME),}}],},)
@@ -318,15 +318,8 @@ def CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,RE
         if (REPORTEDBYSI != None):
             print ("REPORTEDBYSI available")
             NAME=REPORTEDBYSI[0]
-            values = [{'value':str(NAME)}]
-            
             print("Selection:{0}".format(NAME))
-            #TARGETTEST.update(notify=False,fields={'customfield_12200': {'value':str(REPORTEDBYSI)}})
-            #TARGETTEST.update(notify=False,update={"customfield_12200": values} )
-            
-            #TARGETTEST.update(notify=False,update={"customfield_12200": [{"add": {"name": REPORTEDBYSI,}}],},)
-            #TARGETTEST.update(notify=False,update={"customfield_12200": [{"add": {"name": str(NAME),}}],},) #works does nothing
-            TARGETTEST.update(notify=False,update={"customfield_12200": [{"add": {"value": str(NAME),}}],},) #
+            TARGETTEST.update(notify=False,update={"customfield_12200": [{"add": {"value": str(NAME),}}],},) # works, no idea why
             time.sleep(0.3)
 
         if (SAUTOMATION != None):
