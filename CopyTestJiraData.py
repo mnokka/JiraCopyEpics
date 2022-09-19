@@ -162,7 +162,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             REPORTER=issue.fields.reporter
             PRIORITY=issue.fields.priority 
             LABELS=issue.fields.labels 
-            AUTOMATION=issue.get_field("customfield_11801")
+            AUTOMATION=issue.get_field("customfield_11801") #TBD field numbers in data structure
             #TEAM=issue.get_field("customfield_13402") 
             TEAM2=issue.get_field("customfield_12500") 
             REPORTEDBYSI=issue.get_field("customfield_12200") 
@@ -244,7 +244,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                 else:
                     print ("REAL OPERATION MODE. DRY RUN MODE OFF. Doing the data copy operation") 
                     CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,REPORTEDBYSI,SAUTOMATION,CLIENTU,CLIENTREQ,TARGETTEST)   
-                    #time.sleep(0.5) # prevent jira crash when creating issues in a row
+                    #time.sleep(0.3) # prevent jira crash when creating issues in a row
                 
                
                 if (COUNTER>=1):
@@ -272,41 +272,76 @@ def CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,RE
         
         if (DESCRIPTION != None):
             print ("DESCRIPTION available")
+            TARGETTEST.update(notify=False, description=str(DESCRIPTION))
+            time.sleep(0.3) 
         
         if (COMPONENT != None):
             NAME=COMPONENT[0]
+      
             print ("COMPONENT available -->{0}".format(NAME))
+            #TARGETTEST.update(notify=False, components=str(NAME))
+            #values = [{'value':str(NAME)}]
+            #TARGETTEST.update(notify=False,components={ values})
+            #TARGETTEST.update(notify=False,fields={'components': {'value':str(COMPONENT)}})
+            TARGETTEST.update(notify=False,update={"components": [{"add": {"name": str(NAME),}}],},)
+            #'components' : [{'name' : 'FCS'}],
+            time.sleep(0.3)
 
         
         if (REPORTER != None):
-            print ("REPORTER available")        
+            print ("REPORTER available")
+            
+            NAME = TARGETTEST.fields.reporter.name
+            print ("NAME:{0}".format(NAME))
+            TARGETTEST.update(notify=False,reporter={'name': str(NAME)})
+            #TARGETTEST.update(notify=False, reporter=str(REPORTER))
+            time.sleep(0.3)        
             
         if (PRIORITY != None):
             print ("PRIORITY available")
+            TARGETTEST.update(notify=False,priority={'name': str(PRIORITY)})
+            #TARGETTEST.update(notify=False, priority=str(PRIORITY))
+            time.sleep(0.3) 
         
         if (LABELS != None):
             print ("LABELS available")
             for label in LABELS:
                 print ("  -->{0}".format(label))
+                TARGETTEST.fields.labels.append(label)
+                TARGETTEST.update(fields={"labels": TARGETTEST.fields.labels})
+                time.sleep(0.3)
         
         if (AUTOMATION != None):
             print ("AUTOMATION available")
+            TARGETTEST.update(notify=False,fields={'customfield_11801': {'value':str(AUTOMATION)}})
+            #TARGETTEST.update(notify=False, customfield_11801=AUTOMATION)
+            time.sleep(0.3)
         
         if (TEAM2 != None):
             print ("TEAM2 available")
+            TARGETTEST.update(notify=False,fields={'customfield_12500': {'value':str(TEAM2)}})
+            #TARGETTEST.update(notify=False, customfield_12500=TEAM2)
+            time.sleep(0.3)
         
         if (REPORTEDBYSI != None):
             print ("REPORTEDBYSI available")
+            TARGETTEST.update(notify=False,fields={'customfield_12200': {'value':str(REPORTEDBYSI)}})
+            time.sleep(0.3)
 
         if (SAUTOMATION != None):
             print ("SAUTOMATION available")
+            TARGETTEST.update(notify=False,fields={'customfield_20205': {'value':str(SAUTOMATION)}})
+            time.sleep(0.3)
             
         if (CLIENTU != None):
             print ("CLIENTU available")
+            TARGETTEST.update(notify=False,fields={'customfield_11802': {'value':str(CLIENTU)}})
+            time.sleep(0.3)
             
         if (CLIENTREQ != None):
             print ("CLIENTREQ available")
-
+            TARGETTEST.update(notify=False,fields={'customfield_11472': {'value':str(CLIENTREQ)}})
+            time.sleep(0.3)
 
 
 #########################################################################
