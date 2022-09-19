@@ -146,6 +146,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
               
     if nbr >= 1:
         COUNTER=1
+        COPIEDCOUNTER=1
         print ("Found:{0} Tests".format(nbr)) # iterate over all found Test issues
         for issue in issue_list:
             print ("")
@@ -236,18 +237,18 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             
                 
             
-            if (TARGETTEST != "NA"):
-                
+            if (TARGETTEST != "NA"): # do copy only if target exists
+                COPIEDCOUNTER=COPIEDCOUNTER+1
                 if (SKIP==1):
                     print("DRY RUN MODE ON. NOT DOING ANYTHING")
                    
                 else:
                     print ("REAL OPERATION MODE. DRY RUN MODE OFF. Doing the data copy operation") 
-                    CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,REPORTEDBYSI,SAUTOMATION,CLIENTU,CLIENTREQ,TARGETTEST)   
+                    CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,REPORTEDBYSI,SAUTOMATION,CLIENTU,CLIENTREQ,TARGETTEST,issue,COPIEDCOUNTER)   
                     #time.sleep(0.3) # prevent jira crash when creating issues in a row
                 
                
-                if (COUNTER>=1):
+                if (COPIEDCOUNTER>=5):
                     print ("FORCE TESTING  STOP!!!")
                     sys.exit(5)    
                 
@@ -264,9 +265,10 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
  
 ############################################################################################
 # copy source project test case normal Jira data to target project found matching test case    
-# TBD: data in dictionary     
+# TBD: data in dictionary , this is POC    
         
-def CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,REPORTEDBYSI,SAUTOMATION,CLIENTU,CLIENTREQ,TARGETTEST):        
+def CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,REPORTEDBYSI,SAUTOMATION,CLIENTU,CLIENTREQ,TARGETTEST,issue,COPIEDCOUNTER):        
+        print ("Copy operation number:{0}".format(COPIEDCOUNTER))
         print ("Data copy operations TO:{0}".format(TARGETTEST))
         print ("..............................................")
         
@@ -277,30 +279,21 @@ def CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,RE
         
         if (COMPONENT != None):
             NAME=COMPONENT[0]
-      
             print ("COMPONENT available -->{0}".format(NAME))
-            #TARGETTEST.update(notify=False, components=str(NAME))
-            #values = [{'value':str(NAME)}]
-            #TARGETTEST.update(notify=False,components={ values})
-            #TARGETTEST.update(notify=False,fields={'components': {'value':str(COMPONENT)}})
             TARGETTEST.update(notify=False,update={"components": [{"add": {"name": str(NAME),}}],},)
-            #'components' : [{'name' : 'FCS'}],
             time.sleep(0.3)
 
         
         if (REPORTER != None):
             print ("REPORTER available")
-            
-            NAME = TARGETTEST.fields.reporter.name
+            NAME = issue.fields.reporter.name #source issue reporter it is
             print ("NAME:{0}".format(NAME))
             TARGETTEST.update(notify=False,reporter={'name': str(NAME)})
-            #TARGETTEST.update(notify=False, reporter=str(REPORTER))
             time.sleep(0.3)        
             
         if (PRIORITY != None):
             print ("PRIORITY available")
             TARGETTEST.update(notify=False,priority={'name': str(PRIORITY)})
-            #TARGETTEST.update(notify=False, priority=str(PRIORITY))
             time.sleep(0.3) 
         
         if (LABELS != None):
@@ -320,12 +313,20 @@ def CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,RE
         if (TEAM2 != None):
             print ("TEAM2 available")
             TARGETTEST.update(notify=False,fields={'customfield_12500': {'value':str(TEAM2)}})
-            #TARGETTEST.update(notify=False, customfield_12500=TEAM2)
             time.sleep(0.3)
         
         if (REPORTEDBYSI != None):
             print ("REPORTEDBYSI available")
-            TARGETTEST.update(notify=False,fields={'customfield_12200': {'value':str(REPORTEDBYSI)}})
+            NAME=REPORTEDBYSI[0]
+            values = [{'value':str(NAME)}]
+            
+            print("Selection:{0}".format(NAME))
+            #TARGETTEST.update(notify=False,fields={'customfield_12200': {'value':str(REPORTEDBYSI)}})
+            #TARGETTEST.update(notify=False,update={"customfield_12200": values} )
+            
+            #TARGETTEST.update(notify=False,update={"customfield_12200": [{"add": {"name": REPORTEDBYSI,}}],},)
+            #TARGETTEST.update(notify=False,update={"customfield_12200": [{"add": {"name": str(NAME),}}],},) #works does nothing
+            TARGETTEST.update(notify=False,update={"customfield_12200": [{"add": {"value": str(NAME),}}],},) #
             time.sleep(0.3)
 
         if (SAUTOMATION != None):
