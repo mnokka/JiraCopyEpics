@@ -118,11 +118,11 @@ def main(argv):
 
 def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
 
-    jql_query="Project = \'{0}\' and issuetype =\'Test\' ".format(SOURCEJIRAPROJECT) # by default only 1000 results given
+    #jql_query="Project = \'{0}\' and issuetype =\'Test\' ".format(SOURCEJIRAPROJECT) # by default only 1000 results given
     
     # some splitting queries by create date
     #1
-    #jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2019-01-01\" and createdDate <\"2020-5-21 15:08\"".format(SOURCEJIRAPROJECT)
+    jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2019-01-01\" and createdDate <\"2020-5-21 15:08\"".format(SOURCEJIRAPROJECT)
     #2
     #jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2020-5-21 15:08\" and createdDate <\"2020-5-21 20:09\"".format(SOURCEJIRAPROJECT)
     #3
@@ -155,7 +155,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             print ("xxxxxxxxxxxxxxxxxxxxx {0} xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".format(issue))
 
             # do operatins only one example case
-            #if (str(issue) !="GRAP-9764"):  
+            #if (str(issue) !="GRAP-1258"):  
             #    print("SKIPPING")
             #    continue
             #else:
@@ -202,13 +202,13 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
          
 
             #Find Test case from target project, using summary as key
-            SUMMARY=SUMMARY.decode()
+            SUMMARY=SUMMARY.decode("utf-8")
             EDITEDSUMMARY=SUMMARY.replace('[','')
             EDITEDSUMMARY=EDITEDSUMMARY.replace(']','')
             EDITEDSUMMARY=EDITEDSUMMARY.replace('}','')
             EDITEDSUMMARY=EDITEDSUMMARY.replace('\'','\\\'')
             jql_query="Project = \'{0}\' and summary ~ \'{1}\' and issuetype = Test ".format(TARGETPROJECT,EDITEDSUMMARY) 
-            print ("Used query:{0}".format(jql_query))                        
+            print ("Used query:{0}".format(jql_query.encode("utf-8",errors='replace')))                        
             issue_list=jira.search_issues(jql_query, maxResults=4000)
         
             z=len(issue_list)                    
@@ -229,7 +229,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                     print("OK: Found single:{0} matching TARGET project test case".format(z))
                     TARGETTEST=issue_list[0]
                     print ("Matching target test case --> {0}".format(TARGETTEST))
-                    print ("Target summary: {0}".format(TARGETEDITEDSUMMARY))
+                    print ("Target summary: {0}".format(TARGETEDITEDSUMMARY.encode("utf-8",errors='replace')))
                     print ("Target-Source pair: {0} --> {1} ".format(issue,TARGETTEST))
                     
 
@@ -355,19 +355,23 @@ def CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,RE
         
         
         #changing status needs transferring issue, this follows workflow logic, ID needed, transit rights needed
-        if (str(STATUS)=="In Use"):
+        
+        
+        TARGETSTATUS=TARGETTEST.fields.status # can do multiple excutions without trying to redo transits
+        
+        if (str(STATUS)=="In Use" and str(TARGETSTATUS)!="In Use"):
             print ("STATUS:{0} Need settings".format(STATUS))
             print ("---> In review")
             jira.transition_issue(TARGETTEST, 41)
             print ("---> In Use")
             jira.transition_issue(TARGETTEST, 21)
             
-        if (str(STATUS)=="In Review"):  
+        if (str(STATUS)=="In Review" and str(TARGETSTATUS)!="In Review"):  
             print ("STATUS:{0} Need settings".format(STATUS))
             print ("---> In review")
             jira.transition_issue(TARGETTEST,41)
             
-        if (str(STATUS)=="Closed"):  
+        if (str(STATUS)=="Closed" and str(TARGETSTATUS)!="Closed" ):  
             print ("STATUS:{0} Need settings".format(STATUS))
             print ("---> Closed")
             jira.transition_issue(TARGETTEST, 91)            
