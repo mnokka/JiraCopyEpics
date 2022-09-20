@@ -154,6 +154,14 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             
             print ("xxxxxxxxxxxxxxxxxxxxx {0} xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".format(issue))
 
+            # do operatins only one example case
+            #if (str(issue) !="GRAP-9764"):  
+            #    print("SKIPPING")
+            #    continue
+            #else:
+            #    COPIEDCOUNTER=1111
+
+
             TARGETTEST="NA"
             SUMMARY=issue.fields.summary.encode("utf-8")
             DESCRIPTION=issue.fields.description
@@ -170,6 +178,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             SAUTOMATION=issue.get_field("customfield_20205")
             CLIENTU=issue.get_field("customfield_11802")
             CLIENTREQ=issue.get_field("customfield_11472")
+            STATUS=issue.fields.status 
          
             print ("SOURCE PROJECT ISSUE:{0}-->{1}".format(COUNTER,issue))
             print("SUMMARY:{0}".format(SUMMARY))
@@ -184,6 +193,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             print ("SAUTOMATION:{0}".format(SAUTOMATION))
             print ("CLIENTU:{0}".format(CLIENTU))
             print ("CLIENTREQ:{0}".format(CLIENTREQ))
+            print ("STATUS:{0}".format(STATUS))
             
             C=0
             for label in LABELS:
@@ -244,11 +254,11 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                    
                 else:
                     print ("REAL OPERATION MODE. DRY RUN MODE OFF. Doing the data copy operation") 
-                    CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,REPORTEDBYSI,SAUTOMATION,CLIENTU,CLIENTREQ,TARGETTEST,issue,COPIEDCOUNTER)   
+                    CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,REPORTEDBYSI,SAUTOMATION,CLIENTU,CLIENTREQ,TARGETTEST,issue,COPIEDCOUNTER,STATUS,jira)   
                     #time.sleep(0.3) # prevent jira crash when creating issues in a row
                 
                
-                if (COPIEDCOUNTER>=20):
+                if (COPIEDCOUNTER>=1111):
                     print ("FORCE TESTING  STOP!!!")
                     sys.exit(5)    
                 
@@ -267,7 +277,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
 # copy source project test case normal Jira data to target project found matching test case    
 # TBD: data in dictionary , this is POC    
         
-def CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,REPORTEDBYSI,SAUTOMATION,CLIENTU,CLIENTREQ,TARGETTEST,issue,COPIEDCOUNTER):        
+def CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,REPORTEDBYSI,SAUTOMATION,CLIENTU,CLIENTREQ,TARGETTEST,issue,COPIEDCOUNTER,STATUS,jira):        
         print ("Copy operation number:{0}".format(COPIEDCOUNTER))
         print ("Data copy operations TO:{0}".format(TARGETTEST))
         print ("..............................................")
@@ -285,11 +295,14 @@ def CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,RE
 
         
         if (REPORTER != None):
-            print ("REPORTER available")
-            NAME = issue.fields.reporter.name #source issue reporter it is
-            print ("NAME:{0}".format(NAME))
-            TARGETTEST.update(notify=False,reporter={'name': str(NAME)})
-            time.sleep(0.3)        
+            if str(REPORTER).find("[X]"):
+                print ("INACTIVE USER AS REPORTER. Not trying to set")
+            else:    
+                print ("Active REPORTER available")
+                NAME = issue.fields.reporter.name #source issue reporter it is
+                print ("NAME:{0}".format(NAME))
+                TARGETTEST.update(notify=False,reporter={'name': str(NAME)})
+                time.sleep(0.3)        
             
         if (PRIORITY != None):
             print ("PRIORITY available")
@@ -337,6 +350,28 @@ def CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,RE
             TARGETTEST.update(notify=False,fields={'customfield_11472': {'value':str(CLIENTREQ)}})
             time.sleep(0.3)
 
+        if (STATUS=="Draft"):
+            print ("STATUS:{0} No settings needed".format(STATUS))
+        
+        
+        #changing status needs transferring issue, this follows workflow logic, ID needed, transit rights needed
+        if (str(STATUS)=="In Use"):
+            print ("STATUS:{0} Need settings".format(STATUS))
+            print ("---> In review")
+            jira.transition_issue(TARGETTEST, 41)
+            print ("---> In Use")
+            jira.transition_issue(TARGETTEST, 21)
+            
+        if (str(STATUS)=="In Review"):  
+            print ("STATUS:{0} Need settings".format(STATUS))
+            print ("---> In review")
+            jira.transition_issue(TARGETTEST,41)
+            
+        if (str(STATUS)=="Closed"):  
+            print ("STATUS:{0} Need settings".format(STATUS))
+            print ("---> Closed")
+            jira.transition_issue(TARGETTEST, 91)            
+            
 
 #########################################################################
 
