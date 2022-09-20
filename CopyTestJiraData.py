@@ -155,11 +155,11 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             print ("xxxxxxxxxxxxxxxxxxxxx {0} xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".format(issue))
 
             # do operatins only one example case
-            #if (str(issue) !="GRAP-1258"):  
-            #    print("SKIPPING")
-            #    continue
-            #else:
-            #    COPIEDCOUNTER=1111
+            if (str(issue) !="GRAP-942"):  
+                print("SKIPPING")
+                continue
+            else:
+                COPIEDCOUNTER=1111
 
 
             TARGETTEST="NA"
@@ -358,20 +358,21 @@ def CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,RE
         
         
         TARGETSTATUS=TARGETTEST.fields.status # can do multiple excutions without trying to redo transits
+        print ("Target issue status:{0}".format(TARGETSTATUS))
         
-        if (str(STATUS)=="In Use" and str(TARGETSTATUS)!="In Use"):
+        if (str(STATUS)=="In Use" and (str(TARGETSTATUS)!="In Use" or tr(TARGETSTATUS)=="Draft") ):
             print ("STATUS:{0} Need settings".format(STATUS))
             print ("---> In review")
             jira.transition_issue(TARGETTEST, 41)
             print ("---> In Use")
             jira.transition_issue(TARGETTEST, 21)
             
-        if (str(STATUS)=="In Review" and str(TARGETSTATUS)!="In Review"):  
+        if (str(STATUS)=="In Review" and (str(TARGETSTATUS)!="In Review" or tr(TARGETSTATUS)=="Draft")):  
             print ("STATUS:{0} Need settings".format(STATUS))
             print ("---> In review")
             jira.transition_issue(TARGETTEST,41)
             
-        if (str(STATUS)=="Closed" and str(TARGETSTATUS)!="Closed" ):  
+        if (str(STATUS)=="Closed" and (str(TARGETSTATUS)!="Closed" or tr(TARGETSTATUS)=="Draft")):  
             print ("STATUS:{0} Need settings".format(STATUS))
             print ("---> Closed")
             jira.transition_issue(TARGETTEST, 91)            
