@@ -50,10 +50,17 @@ EXAMPLE: FindCreateEpicTestLinks.py -u MYUSERNAME -w MYPASSWORD -s https://MYOWN
 <br />
 <br />
 <br />
-<br />
+<br />  
 
 ### Copy source project components to target project  
   
 Note:source and target projects hardcoded 
   
 EXAMPLE: CopyComponents.py -u MYUSERNAME -w MYPASSWORD -s https://MYOWNJIRA.fi/   
+
+
+### Copy source project test case "normal Jira data" to target project matching test case (created during excel import)
+
+Note:source and target projects hardcoded 
+  
+EXAMPLE: CopyTestJiraData.py -u MYUSERNAME -w MYPASSWORD -s https://MYOWNJIRA.fi/

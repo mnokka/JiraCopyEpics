@@ -162,6 +162,13 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             #    COPIEDCOUNTER=1111
 
 
+            # skip source issues with same description but different content they will try do change same target issue
+            #GRA12-1286
+
+            if (str(issue)=="GRAP-942" or str(issue)=="GRAP-1274"):
+                print("ERROR issue:{0} has same description with others (942,1274) SKIPPING".format(0))
+                continue
+
             TARGETTEST="NA"
             SUMMARY=issue.fields.summary.encode("utf-8")
             DESCRIPTION=issue.fields.description
@@ -362,14 +369,14 @@ def CopyData (DESCRIPTION,COMPONENT,REPORTER,PRIORITY,LABELS,AUTOMATION,TEAM2,RE
         
         if (str(STATUS)=="In Use" and (str(TARGETSTATUS)!="In Use" or str(TARGETSTATUS)=="Draft") ):
             print ("STATUS:{0} Need settings".format(STATUS))
-            print ("---> In review")
+            print ("...---> In review")
             jira.transition_issue(TARGETTEST, 41)
             print ("---> In Use")
             jira.transition_issue(TARGETTEST, 21)
             
         if (str(STATUS)=="In Review" and (str(TARGETSTATUS)!="In Review" or str(TARGETSTATUS)=="Draft")):  
             print ("STATUS:{0} Need settings".format(STATUS))
-            print ("---> In review")
+            print ("-----> In review")
             jira.transition_issue(TARGETTEST,41)
             
         if (str(STATUS)=="Closed" and (str(TARGETSTATUS)!="Closed" or str(TARGETSTATUS)=="Draft")):  
