@@ -122,7 +122,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
     
     # some splitting queries by create date
     #1
-    jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2019-01-01\" and createdDate <\"2020-5-21 15:08\"".format(SOURCEJIRAPROJECT)
+    #jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2019-01-01\" and createdDate <\"2020-5-21 15:08\"".format(SOURCEJIRAPROJECT)
     #2
     #jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2020-5-21 15:08\" and createdDate <\"2020-5-21 20:09\"".format(SOURCEJIRAPROJECT)
     #3
@@ -134,7 +134,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
     #6
     #jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2020-7-30 20:40\" and createdDate <\"2021-3-30 20:40\"".format(SOURCEJIRAPROJECT)
     #7
-    #jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2021-3-30 20:40\"".format(SOURCEJIRAPROJECT)
+    jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2021-3-30 20:40\"".format(SOURCEJIRAPROJECT)
     
     print ("Used query:{0}".format(jql_query))
                         
@@ -155,7 +155,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             print ("xxxxxxxxxxxxxxxxxxxxx {0} xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".format(issue))
 
             # do operatins only one example case
-            #if (str(issue) !="GRAP-942"):  
+            #if (str(issue) !="GRAP-4850"):  
             #    print("SKIPPING")
             #    continue
             #else:
@@ -214,6 +214,12 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             EDITEDSUMMARY=EDITEDSUMMARY.replace(']','')
             EDITEDSUMMARY=EDITEDSUMMARY.replace('}','')
             EDITEDSUMMARY=EDITEDSUMMARY.replace('\'','\\\'')
+            EDITEDSUMMARY=EDITEDSUMMARY.replace('^','')
+            EDITEDSUMMARY=EDITEDSUMMARY.replace('(','')
+            EDITEDSUMMARY=EDITEDSUMMARY.replace(')','')
+            EDITEDSUMMARY=EDITEDSUMMARY.replace('&','')
+            EDITEDSUMMARY=EDITEDSUMMARY.replace('-','')
+            EDITEDSUMMARY=EDITEDSUMMARY.replace('{','')
             jql_query="Project = \'{0}\' and summary ~ \'{1}\' and issuetype = Test ".format(TARGETPROJECT,EDITEDSUMMARY) 
             print ("Used query:{0}".format(jql_query.encode("utf-8",errors='replace')))                        
             issue_list=jira.search_issues(jql_query, maxResults=4000)
@@ -232,7 +238,12 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                     TARGETEDITEDSUMMARY=EDITEDSUMMARY.replace(']','')
                     TARGETEDITEDSUMMARY=EDITEDSUMMARY.replace('}','')
                     TARGETEDITEDSUMMARY=EDITEDSUMMARY.replace('\'','\\\'')
-                    
+                    TARGETEDITEDSUMMARY=EDITEDSUMMARY.replace('^','')
+                    TARGETEDITEDSUMMARY=EDITEDSUMMARY.replace('(','')
+                    TARGETEDITEDSUMMARY=EDITEDSUMMARY.replace(')','')
+                    TARGETEDITEDSUMMARY=EDITEDSUMMARY.replace('&','')
+                    TARGETEDITEDSUMMARY=EDITEDSUMMARY.replace('-','')
+                    TARGETEDITEDSUMMARY=EDITEDSUMMARY.replace('{','')
                     print("OK: Found single:{0} matching TARGET project test case".format(z))
                     TARGETTEST=issue_list[0]
                     print ("Matching target test case --> {0}".format(TARGETTEST))
