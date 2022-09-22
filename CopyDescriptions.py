@@ -119,38 +119,57 @@ def main(argv):
 def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
     
     COPIEDCOUNTER=0
+    COUNTER=0
 
-    SOURCE="GRAP-10244"
-    TARGET="GRA12-7597"
-            
-    SOURCEISSUE=jira.issue(SOURCE)  
-    TARGETISSUE=jira.issue(TARGET)      
+    #SOURCE="GRAP-10244"
+    #TARGET="GRA12-7597"
     
-    print ("Source issue:{0}".format(SOURCEISSUE)) 
-    print ("target issue:{0}".format(TARGETISSUE)) 
+    #open text file defining source test - target test pairs
+    pairsfile=open("1-7pairs.txt")
     
-    SOURCEDESCRIPTION=SOURCEISSUE.fields.description
-    TARGETDESCRIPTION=TARGETISSUE.fields.description
+    for line in pairsfile:
+        print ("Operation number:{0}".format(COUNTER))
+        print ("Read pair line:{0}".format(line))
+        REGEXPR=r"(.*)(:)(.*)(-->)(.*)"   # Target-Source pair: GRAP-10244 --> GRA12-7597
+        x = re.search(str(REGEXPR), str(line))  
+        g2=x.group(3)
+        g4=x.group(5)     
+        #print ("group(3), group(5):{0} , {1}".format(g2,g4))
+    
+        g2=g2.replace(" ","")
+        g4=g4.replace(" ","")       
+        SOURCEISSUE=jira.issue(g2)  
+        TARGETISSUE=jira.issue(g4)      
+    
+        print ("Source issue:{0}".format(SOURCEISSUE)) 
+        print ("target issue:{0}".format(TARGETISSUE)) 
+    
+        SOURCEDESCRIPTION=SOURCEISSUE.fields.description
+        TARGETDESCRIPTION=TARGETISSUE.fields.description
     
     
-    if (TARGETDESCRIPTION!=None):
+        if (TARGETDESCRIPTION!=None):
                 print("Target description:")
                 print("{0}".format(TARGETDESCRIPTION))           
-    else:
-        print("No target description")
+        else:
+            print("No target description")
     
-    if (SOURCEDESCRIPTION!=None):
+        if (SOURCEDESCRIPTION!=None):
                 print("Source description:")
                 print("{0}".format(SOURCEDESCRIPTION))
-                CopyData (SOURCEISSUE,TARGETISSUE,TARGETDESCRIPTION,SOURCEDESCRIPTION,jira,COPIEDCOUNTER)
-    else:
-        print("No source description")            
+                print("")
+                print ("Copy operation defined:{0} --> {1}".format(SOURCEISSUE,TARGETISSUE))
+                if (SKIP==1):
+                    print("DRY RUN MODE ON. NOT DOING ANYTHING")
+                else:
+                    print ("REAL OPERATION MODE. DRY RUN MODE OFF. Doing copy operation")   
+                    CopyData (SOURCEISSUE,TARGETISSUE,TARGETDESCRIPTION,SOURCEDESCRIPTION,jira,COPIEDCOUNTER)
+        else:
+            print("No source description. No operations done")            
                 
-
-        
+        COUNTER=COUNTER+1
+        print ("--------------------------------------------------------------------------------------")
     
-    
-
     print ("****************************************************************************************************************")
 
                 
@@ -165,7 +184,8 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
 # copy source project test case normal Jira data to target project found matching test case    
 # TBD: data in dictionary , this is POC    
         
-def CopyData (SOURCEISSUE,TARGETISSUE,TARGETDESCRIPTION,SOURCEDESCRIPTION,jira,COPIEDCOUNTER):        
+def CopyData (SOURCEISSUE,TARGETISSUE,TARGETDESCRIPTION,SOURCEDESCRIPTION,jira,COPIEDCOUNTER):     
+        print("")   
         print ("Copy operation number:{0}".format(COPIEDCOUNTER))
         print ("Data copy operations {0} --> {1}".format(SOURCEISSUE,TARGETISSUE))
         print ("..............................................")
@@ -177,7 +197,7 @@ def CopyData (SOURCEISSUE,TARGETISSUE,TARGETDESCRIPTION,SOURCEDESCRIPTION,jira,C
     
     
             COPIEDCOUNTER=COPIEDCOUNTER+1
-        
+      
             
             
 
