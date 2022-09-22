@@ -150,13 +150,15 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
     
         if (TARGETDESCRIPTION!=None):
                 print("Target description:")
-                print("{0}".format(TARGETDESCRIPTION))           
+                FILTEREDT=TARGETDESCRIPTION.encode("utf-8")
+                print("{0}".format(FILTEREDT))           
         else:
             print("No target description")
     
         if (SOURCEDESCRIPTION!=None):
                 print("Source description:")
-                print("{0}".format(SOURCEDESCRIPTION))
+                FILTEREDS=SOURCEDESCRIPTION.encode("utf-8")
+                print("{0}".format(FILTEREDS))
                 print("")
                 print ("Copy operation defined:{0} --> {1}".format(SOURCEISSUE,TARGETISSUE))
                 if (SKIP==1):
