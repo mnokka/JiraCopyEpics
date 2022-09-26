@@ -16,6 +16,9 @@ Couple of helper utilities were created
 3) copy normal Jira data from source project test case to matching target project test case (in order to fix stuff not exported by Better Excel)
 
 
+(other solution is to bulk clone/move issues in 1000 sets. This will copy data but not creating link (Epic-test case) only between issues in one JQL query set, hence Epic links need to recreted when all isseus are in target project)s
+
+
 <br />
 <br />
 <br />   
