@@ -101,14 +101,23 @@ def main(argv):
         print ("REAL OPERATION MODE. DRY RUN MODE OFF") 
    
    
-
-    GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT)
+    COUNTER=1
+    EPICSLINKED=0
+    COUNTER,EPICSLINKED=GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT,COUNTER,EPICSLINKED)
 
 
     end = time.perf_counter()
     totaltime=end-start
     #seconds=totaltime.total_seconds()
+    
+    print ("Test cases checked:{0}".format(COUNTER))
+    if (SKIP==1): 
+        print ("Dry mode, would have created Epic links:{0}".format(EPICSLINKED))
+    else:     
+        print ("Epic links created:{0}".format(EPICSLINKED))
+    
     print ("Operation time taken:{0} seconds".format(totaltime))
+
 
 ############################################################################################################################################
 # Create Epic issue. Using fixed task issuetype
@@ -161,9 +170,9 @@ logging.debug ("--Python exiting--")
 # Check every Test case if there exists Epic (requirements) linked to it
 #
 
-def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
+def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT,COUNTER,EPICSLINKED):
 
-    jql_query="Project = \'{0}\' and issuetype =\'Test\' ".format(SOURCEJIRAPROJECT) # by default only 1000 results given
+    #jql_query="Project = \'{0}\' and issuetype =\'Test\' ".format(SOURCEJIRAPROJECT) # by default only 1000 results given
     
     # some splitting queries by create date
     #1
@@ -179,7 +188,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
     #6
     #jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2020-7-30 20:40\" and createdDate <\"2021-3-30 20:40\"".format(SOURCEJIRAPROJECT)
     #7
-    #jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2021-3-30 20:40\"".format(SOURCEJIRAPROJECT)
+    jql_query="Project = \'{0}\' and issuetype =\'Test\' and createdDate > \"2021-3-30 20:40\"".format(SOURCEJIRAPROJECT)
     
     print ("Used query:{0}".format(jql_query))
                         
@@ -189,7 +198,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                      
     nbr=len(issue_list)                    
     if nbr >= 1:
-        COUNTER=1
+        #COUNTER=1
         print ("Found:{0} Tests".format(nbr)) # iterate over all found Test issues
         for issue in issue_list:
             print ("")
@@ -200,7 +209,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
             SUMMARY=issue.fields.summary.encode("utf-8")
             DESCRIPTION=issue.fields.description
             if (DESCRIPTION!=None):
-                 DESCRIPTION=issue.fields.description.encode("utf-8")
+                DESCRIPTION=issue.fields.description.encode("utf-8")
             EPICLINK=issue.raw["fields"]["customfield_10006"]  # find ocrrect epic link id from ui
             print ("SOURCE PROJECT ISSUE:{0}-->{1}".format(COUNTER,issue))
             print("SUMMARY:{0}".format(SUMMARY))
@@ -225,14 +234,14 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                     print ("OK. source project Epic is inside source project:{0}".format(x.group(1)))                            
                 else:
                     print ("ERROR: SOURCE PROJECT LINKED EPIC IS OUTSIDE OF SOURCE PROJECT!!!!!!!")
-                    print ("STOPPING ANALYZING THIS TEST CASE. YOU MIGHT WANT CHECK THIS LINKAGE MANUALLY") 
+                    print ("STOPPING ANALYZING THIS TEST CASE ({0}) . YOU MIGHT WANT CHECK THIS LINKAGE MANUALLY".format(issue)) 
                     continue
                 
                 
                 linkedissue = jira.issue(EPICLINK)
                 LINKEDSUMMARY=linkedissue.fields.summary
                 print("LINKED SOURCE EPIC SUMMARY:{0}".format(LINKEDSUMMARY))
-                print ("Linked Source Test case: {0}-->  Source Epic:{1}".format(issue,linkedissue))
+                print ("Linked Source Test case: {0}-->  Source Epic:{1}".format(issue,linkedissue)) # 1->1 relation as from test case to Epic (only one link)
                 print ("{0} --> {1}".format(SUMMARY,LINKEDSUMMARY))
 
 
@@ -254,11 +263,11 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                         TARGETEPIC=issue
                         print ("TARGET EPIC:{0}".format(TARGETEPIC))
                 elif (z>1): # in case many epics, fails this issue handling
-                    print ("ERROR: TOO MANY LINKED EPICS FOUND.MAYBE EPIC SUMMARY MATCHES TOO MANY EPICS. CHECK MANUALLY!!")
+                    print ("ERROR: TOO MANY LINKED EPICS FOUND.MAYBE EPIC SUMMARY MATCHES TOO MANY EPICS. CHECK ({0}) MANUALLY!!")
                     continue            
                 else:
                     print ("ERROR: NO TARGET PROJECT EPIC FOUND. IT MIGHT BE OUTSIDE IN ANOTHER PROJECT!!!!!!!!!")
-                    print ("STOPPING ANALYZING THIS CASE. YOU MIGHT WANT CHECK THIS LINKAGE MANUALLY") 
+                    print ("STOPPING ANALYZING THIS CASE ({0}). YOU MIGHT WANT CHECK THIS LINKAGE MANUALLY") 
                     continue   
                 
                 
@@ -311,9 +320,11 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
                     
                     if (SKIP==1):
                                 print("DRY RUN MODE ON. Not doing Epic-Test linking")
+                                EPICSLINKED=EPICSLINKED+1
                     else:
                         print ("REAL OPERATING MODE. Creating Target Epic-Target Test link:{0}".format(issue))               
                         TARGETTEST.update(fields={'customfield_10006': str(TARGETEPIC)})
+                        EPICSLINKED=EPICSLINKED+1
                         #print("FORCE EXIT. CHECK RESULTS")
                     
                                
@@ -335,6 +346,7 @@ def GetSourceTests(SOURCEJIRAPROJECT,jira,SKIP,TARGETPROJECT):
     else:
         print ("NO Epics found")
 
+    return COUNTER,EPICSLINKED
 
 #########################################################################
 
